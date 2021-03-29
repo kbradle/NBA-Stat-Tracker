@@ -1,49 +1,24 @@
-import logo from './logo.svg';
 import './App.css';
+import {Switch, Route} from 'react-router-dom';
+import Query1 from './Query1';
+import Query2 from './Query2';
+import Query3 from './Query3';
+import Query4 from './Query4';
+import Query5 from './Query5';
+import Query6 from './Query6';
+import Home from './Home';
 
 function App() {
   return (
-    <div className="App">
-      
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-      <div Classname = "Table">
-        <table>
-          <thead>
-          <tr>
-            <th>put</th>
-            <th>stuff</th>
-            <th>here</th>
-          </tr>
-          </thead>
-
-          <tbody>
-          <tr>
-            <td>hello</td>
-            <td>world</td>
-            <td>!</td>
-          </tr>
-          <tr>
-            <td>hello</td>
-            <td>world</td>
-            <td>!</td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <Switch>
+        <Route exact path='/' component={Home}></Route>
+        <Route exact path='/query1' component={Query1}></Route>
+        <Route exact path='/query2' component={Query2}></Route>
+        <Route exact path='/query3' component={Query3}></Route>
+        <Route exact path='/query4' component={Query4}></Route>
+        <Route exact path='/query5' component={Query5}></Route>
+        <Route exact path='/query6' component={Query6}></Route>
+      </Switch>
   );
 }
 
