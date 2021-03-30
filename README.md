@@ -1,3 +1,31 @@
+# To Setup ORACLE-DB STUFF
+
+## Download Oracle Client Library, the basic one is fine
+
+[Link to Oracle Client Library for Microsoft (x64)] (https://www.oracle.com/database/technologies/instant-client/winx64-64-downloads.html)
+Make sure you know where the Path where you downloaded it
+
+## 'npm install'
+
+Make sure you do it.
+
+## Create an .env File
+
+Create a .env File in the source directory with this format
+
+```
+ORACLE_USERNAME = your_username
+ORACLE_PASSWORD = your_password
+ORACLE_PATH = path_to_client_directory
+```
+
+replace values with personal values
+
+## Test with `npm server.js`
+
+If you deleted your table for country, then change the sql query in the code to something you want
+It should tell you that the authentication is successful, anyway.
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
