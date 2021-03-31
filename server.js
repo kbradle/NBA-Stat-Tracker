@@ -9,7 +9,6 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({
   extended: true
 }));
-//app.use(bodyParser.text({ type: "raw/text" }));
 
 const dotenv = require("dotenv");
 dotenv.config();
@@ -52,7 +51,6 @@ app.post("/", async (req, res, next) => {
   let result;
   try {
     connection = await oracledb.getConnection();
-    console.log(req.body);
     result = await connection.execute(req.body.query);
   } catch (err) {
     res.status(401).send({ message: "Invalid SQL Query" });
