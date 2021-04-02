@@ -1,8 +1,13 @@
 import React from 'react';
-import {Link} from 'react-router-dom';
+import {Link} from 'react-router-dom'
+import {CanvasJSChart} from 'canvasjs-react-charts'
 
+var gsw=[];
+var other=[];
 
 function test(param){
+    gsw.length=0;
+    other.length=0;
     let xhr = new XMLHttpRequest();
     xhr.open('POST', 'http://localhost:8080');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -19,10 +24,20 @@ function test(param){
         } else { 
             var div = document.createElement("div");
             var obj = JSON.parse(xhr.responseText);
-            //div.innerHTML = obj.message.rows[0][0];
-            div.innerHTML = xhr.responseText;
-            document.body.appendChild(div);
-        }  
+            //div.innerHTML = xhr.responseText;
+            // document.body.appendChild(div);
+
+            
+            for(var i=0; i<obj.message.rows.length;i++){
+                if(obj.message.rows[i][0]=="Golden State Warriors"){
+                    gsw.push({y: obj.message.rows[i][1], label: obj.message.rows[i][2]});
+                }
+                else{
+                    other.push({y: obj.message.rows[i][1], label: obj.message.rows[i][2]});
+                }
+            }    
+            
+        } 
     };
 
     xhr.onprogress = function(event) {
@@ -40,16 +55,48 @@ function test(param){
 class Query1 extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { username: '' };
+        this.state = { teamName: '' };
+        this.updateChart = this.updateChart.bind(this);
       }
       mySubmitHandler = (event) => {
         event.preventDefault();
-        test(this.state.teamName); 
+        test(this.state.teamName);
+        this.chart.render(); 
       }
       myChangeHandler = (event) => {
         this.setState({teamName: event.target.value});
       }
+      componentDidMount(){
+		setInterval(this.updateChart);
+	}
+      updateChart() {
+		this.chart.render();
+	}
     render(){
+        const options = {
+            animationEnabled: true,	
+            title:{
+                text: "Three Point Attemps"
+            },
+            axisY : {
+                title: "Number of Three Pointers Attempted"
+            },
+            toolTip: {
+                shared: true
+            },
+            data: [{
+                type: "spline",
+                name: "Golden State Warriors",
+                showInLegend: true,
+                dataPoints: gsw
+            },
+            {
+                type: "spline",
+                name: "other",
+                showInLegend: true,
+                dataPoints: other
+            }]
+    }
         return(
             <>
             <h1>Compare Three Point Attempts to GSW</h1>
@@ -65,9 +112,12 @@ class Query1 extends React.Component {
                     Home
                 </button>
             </Link>
+            <CanvasJSChart options = {options}
+				 onRef={ref => this.chart = ref}
+			/>
             <br/><br/>
             <div>
-                TEAM_NAMES<br/>                                         
+                TEAM NAMES<br/>                                         
                 --------------------------------------------------<br/>
                 Atlanta Hawks <br/>
                 Boston Celtics<br/>
@@ -99,6 +149,7 @@ class Query1 extends React.Component {
                 Charlotte Hornets<br/>
                 Cleveland Cavaliers<br/>
             </div>
+            
             </>
             
         );
