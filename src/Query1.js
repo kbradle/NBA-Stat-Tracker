@@ -58,22 +58,21 @@ class Query1 extends React.Component {
         this.state = { teamName: '' };
         this.updateChart = this.updateChart.bind(this);
         this.chart = '';
-      }
-      mySubmitHandler = (event) => {
+    }
+    mySubmitHandler = (event) => {
         event.preventDefault();
         test(this.state.teamName);
-      }
-      myChangeHandler = (event) => {
+    }
+    myChangeHandler = (event) => {
         this.setState({teamName: event.target.value});
-      }
-      componentDidMount(){
-	setInterval(this.updateChart);
-        //this.updateChart();
+    }
+    componentDidMount(){
+	    setInterval(this.updateChart);
 	}
-      updateChart() {
-        if(this.chart){
-            this.chart.render();
-        }
+    updateChart() {
+      if(this.chart){
+        this.chart.render();
+      }
           
 		
 	}
