@@ -5,6 +5,11 @@ var cors = require("cors");
 const port = process.env.PORT || 8080;
 const app = express();
 
+const bodyParser = require("body-parser");
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
+
 const dotenv = require("dotenv");
 dotenv.config();
 
