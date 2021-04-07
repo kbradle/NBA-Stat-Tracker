@@ -125,11 +125,13 @@ function test(firstTeam, secondTeam, groupBy, allOthers, startDate, endDate){
 class Query1 extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { firstTeam: '', secondTeam: '', allOthers: '', groupBy: '', startDate:'', endDate:''};
+        this.state = { firstTeam: '', secondTeam: '', allOthers: '', groupBy: '', startDate:'', endDate:'', team1Name:'', team2Name:''};
         this.updateChart = this.updateChart.bind(this);
         this.chart = '';
     }
     mySubmitHandler = (event) => {
+        this.setState({team1Name: this.state.firstTeam});
+        this.setState({team2Name: this.state.secondTeam});
         event.preventDefault();
         test(this.state.firstTeam, this.state.secondTeam, this.state.groupBy, this.state.allOthers, this.state.startDate, this.state.endDate);
         var x = document.getElementById('chart');
@@ -176,13 +178,13 @@ class Query1 extends React.Component {
             },
             data: [{
                 type: "spline",
-                name: this.state.firstTeam,
+                name: this.state.team1Name,
                 showInLegend: true,
                 dataPoints: team1
             },
             {
                 type: "spline",
-                name: this.state.secondTeam,
+                name: this.state.team2Name,
                 showInLegend: true,
                 dataPoints: team2
             },
