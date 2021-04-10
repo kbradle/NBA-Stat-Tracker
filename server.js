@@ -6,9 +6,11 @@ const port = process.env.PORT || 8080;
 const app = express();
 
 const bodyParser = require("body-parser");
-app.use(bodyParser.urlencoded({
-  extended: true
-}));
+app.use(
+  bodyParser.urlencoded({
+    extended: true,
+  })
+);
 
 const dotenv = require("dotenv");
 dotenv.config();
@@ -52,8 +54,10 @@ app.post("/", async (req, res, next) => {
   try {
     connection = await oracledb.getConnection();
     result = await connection.execute(req.body.query);
+    res.status(200).send({ message: result });
   } catch (err) {
-    res.status(401).send({ message: "Invalid SQL Query" });
+    res.status(400).send({ message: "Invalid SQL Query" });
+    console.error(err);
   } finally {
     if (connection) {
       try {
@@ -63,7 +67,6 @@ app.post("/", async (req, res, next) => {
       }
     }
   }
-  res.status(200).send({ message: result });
 });
 
 app.listen(port, () => {

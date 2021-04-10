@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { CanvasJSChart } from "canvasjs-react-charts";
+import "./Query6.css";
 
 var player1 = [];
 var player2 = [];
@@ -12,13 +13,46 @@ function test(param) {
   xhr.open("POST", "http://localhost:8080");
   xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 
-  var data =
-    'query= select t.team_name, sum(d.threepoints_attempted) as "3PTA",  Extract(year from g.game_date)as gyear from jawatson.games_details d, jawatson.teams t, JAWATSON.games g where d.team_id = t.team_id and g.game_id = d.game_id and (t.team_name = \'' +
-    param.playerName1 +
-    "' or t.team_name = '" +
-    param.playerName2 +
-    "') group by t.team_name, Extract(year from g.game_date) order by Extract(year from g.game_date) asc";
+  var PERcalculation =
+    "(1/(SUM(seconds_played)/60)) * (SUM(fieldgoals_made) * 85.910) AS PER, ";
 
+  let stringPlayer2;
+
+  if (param.playerName2 === "Other") {
+    stringPlayer2 = "!= '" + param.playerName1 + "'";
+  } else {
+    stringPlayer2 = "= '" + param.playerName2 + "'";
+  }
+  console.log(param.monthOrYear);
+  let queryPlayer2;
+
+  if (param.playerName2 === "") {
+    queryPlayer2 = "";
+  } else {
+    queryPlayer2 =
+      "UNION " +
+      "SELECT 'Other' as Name, " +
+      PERcalculation +
+      " Trunc(Game_Date, 'Month') " +
+      "FROM JAWATSON.players NATURAL JOIN JAWATSON.games_details NATURAL JOIN JAWATSON.games " +
+      "where PLAYER_NAME " +
+      stringPlayer2 +
+      "and Seconds_played > 0 GROUP BY Trunc(Game_Date, 'Month')";
+  }
+
+  var data =
+    "query=" +
+    "SELECT Name, PER,  to_char(\"TRUNC(GAME_DATE,'MONTH')\",'YYYY-MM') as \"Date\" FROM (SELECT '" +
+    param.playerName1 +
+    "' as Name," +
+    PERcalculation +
+    "Trunc(Game_Date, 'Month') " +
+    "FROM JAWATSON.players NATURAL JOIN JAWATSON.games_details NATURAL JOIN JAWATSON.games " +
+    "where PLAYER_NAME = '" +
+    param.playerName1 +
+    "' and Seconds_played > 0  GROUP BY Trunc(Game_Date, 'Month') " +
+    queryPlayer2 +
+    ') order By "Date" ';
   xhr.send(data);
 
   // called after the response is received
@@ -32,7 +66,10 @@ function test(param) {
       // document.body.appendChild(div);
 
       for (var i = 0; i < obj.message.rows.length; i++) {
-        if (obj.message.rows[i][0] === param.playerName1) {
+        if (
+          obj.message.rows[i][0].toLowerCase() ===
+          param.playerName1.toLowerCase()
+        ) {
           player1.push({
             y: obj.message.rows[i][1],
             label: obj.message.rows[i][2],
@@ -61,7 +98,7 @@ function test(param) {
 class Query6 extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { playerName1: "", playerName2: "" };
+    this.state = { playerName1: "", playerName2: "", monthOrYear: 1 };
     this.updateChart = this.updateChart.bind(this);
     this.chart = "";
   }
@@ -74,6 +111,9 @@ class Query6 extends React.Component {
   };
   myChangeHandler2 = (event) => {
     this.setState({ playerName2: event.target.value });
+  };
+  optionChange = (event) => {
+    this.setState({ monthOrYear: event.target.value });
   };
   componentDidMount() {
     setInterval(this.updateChart);
@@ -94,7 +134,7 @@ class Query6 extends React.Component {
       },
       axisX: {
         title: "Date",
-        valueFormatString: "YYYY",
+        valueFormatString: "MM-YYYY",
       },
       toolTip: {
         shared: true,
@@ -116,9 +156,6 @@ class Query6 extends React.Component {
     };
     return (
       <>
-        <Link to="/">
-          <button variant="outlined">Home</button>
-        </Link>
         <h1>One Number Metrics</h1>
         <form onSubmit={this.mySubmitHandler}>
           <label>
@@ -129,7 +166,23 @@ class Query6 extends React.Component {
             Player Name 2:
             <input type="text" onChange={this.myChangeHandler2} />
           </label>
-          <input type="submit" />
+          <label>
+            Group by:
+            <select
+              multiple={false}
+              value={this.props.monthOrYear}
+              onChange={this.optionChange}
+            >
+              <option value={1}>Month</option>
+              <option value={2}>Year</option>
+            </select>
+          </label>
+          <p>
+            <input type="submit" />
+            <Link to="/">
+              <button variant="outlined">Home</button>
+            </Link>
+          </p>
         </form>
 
         <CanvasJSChart options={options} onRef={(ref) => (this.chart = ref)} />
