@@ -13,17 +13,27 @@ function test(param) {
   xhr.open("POST", "http://localhost:8080");
   xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 
+  var adjustedName1 = param.playerName1.replaceAll("'", "''");
+  var adjustedName2 = param.playerName2.replaceAll("'", "''");
+
   var PERcalculation =
-    "(1/(SUM(seconds_played)/60)) * (SUM(fieldgoals_made) * 85.910) AS PER, ";
+    "(1/(SUM(seconds_played)/60)) * ((SUM(fieldgoals_made) * 85.910) + sum(steals) * 53.897+ " +
+    " sum(threepoints_made) * 51.757 + sum(freethrows_made) * 46.845 + sum(blocks) * 39.190 + sum(offensive_rebounds) * 39.190 +" +
+    " sum(Assists) * 34.677 + sum(Defensive_rebounds) * 14.707 - sum(personal_fouls) * 17.174 - (sum(freethrows_attempted) - sum(freethrows_made)) * 20.091 -" +
+    " (sum(fieldgoals_attempted) - sum(fieldgoals_made)) * 39.190 - sum(turnovers) * 53.897) AS PER, ";
+
+  //"(1/(SUM(seconds_played)/60)) * " +
+  //"((SUM(fieldgoals_made) * 85.910) + sum(steals) * 53.897 + sum(threepoints_made) * 51.757 + sum(freethrows_made) * 46.845 + sum(blocks) * " +
+  //"39.190 + sum(offensive_rebounds) * 39.190 + sum(Assists) * 34.677 + sum(Defensive_rebounds) * 14.707 - sum(personal_fouls) * 17.174 - " +
+  //"(sum(freethrows_attempted) - sum(freethrows_made)) * 20.091 - (sum(fieldgoals_attempted) - sum(fieldgoals_made)) * 39.190 - sum(turnovers) * 53.897) AS PER, ";
 
   let stringPlayer2;
 
-  if (param.playerName2 === "Other") {
-    stringPlayer2 = "!= '" + param.playerName1 + "'";
+  if (param.playerName2 === "Other" || param.playerName2 === "other") {
+    stringPlayer2 = "!= upper('" + adjustedName1 + "') ";
   } else {
-    stringPlayer2 = "= '" + param.playerName2 + "'";
+    stringPlayer2 = "= upper('" + adjustedName2 + "') ";
   }
-  console.log(param.monthOrYear);
   let queryPlayer2;
 
   if (param.playerName2 === "") {
@@ -31,11 +41,13 @@ function test(param) {
   } else {
     queryPlayer2 =
       "UNION " +
-      "SELECT 'Other' as Name, " +
+      "SELECT '" +
+      adjustedName2 +
+      "' as Name, Count(game_ID) as num, " +
       PERcalculation +
       " Trunc(Game_Date, 'Month') " +
       "FROM JAWATSON.players NATURAL JOIN JAWATSON.games_details NATURAL JOIN JAWATSON.games " +
-      "where PLAYER_NAME " +
+      "where upper(PLAYER_NAME) " +
       stringPlayer2 +
       "and Seconds_played > 0 GROUP BY Trunc(Game_Date, 'Month')";
   }
@@ -43,16 +55,20 @@ function test(param) {
   var data =
     "query=" +
     "SELECT Name, PER,  to_char(\"TRUNC(GAME_DATE,'MONTH')\",'YYYY-MM') as \"Date\" FROM (SELECT '" +
-    param.playerName1 +
-    "' as Name," +
+    adjustedName1 +
+    "' as Name, Count(game_ID) as num, " +
     PERcalculation +
     "Trunc(Game_Date, 'Month') " +
     "FROM JAWATSON.players NATURAL JOIN JAWATSON.games_details NATURAL JOIN JAWATSON.games " +
-    "where PLAYER_NAME = '" +
-    param.playerName1 +
-    "' and Seconds_played > 0  GROUP BY Trunc(Game_Date, 'Month') " +
+    "where upper(PLAYER_NAME) = upper('" +
+    adjustedName1 +
+    "') and Seconds_played > 0  GROUP BY Trunc(Game_Date, 'Month') " +
     queryPlayer2 +
-    ') order By "Date" ';
+    ") WHERE num > " +
+    param.minGames +
+    ' order By "Date"';
+
+  data = data.replaceAll("+", "%2B");
   xhr.send(data);
 
   // called after the response is received
@@ -73,11 +89,19 @@ function test(param) {
           player1.push({
             y: obj.message.rows[i][1],
             label: obj.message.rows[i][2],
+            x: new Date(
+              obj.message.rows[i][2].substring(0, 4),
+              obj.message.rows[i][2].substring(5, 7)
+            ),
           });
         } else {
           player2.push({
             y: obj.message.rows[i][1],
             label: obj.message.rows[i][2],
+            x: new Date(
+              obj.message.rows[i][2].substring(0, 4),
+              obj.message.rows[i][2].substring(5, 7)
+            ),
           });
         }
       }
@@ -98,7 +122,12 @@ function test(param) {
 class Query6 extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { playerName1: "", playerName2: "", monthOrYear: 1 };
+    this.state = {
+      playerName1: "",
+      playerName2: "",
+      monthOrYear: 1,
+      minGames: 0,
+    };
     this.updateChart = this.updateChart.bind(this);
     this.chart = "";
   }
@@ -111,6 +140,9 @@ class Query6 extends React.Component {
   };
   myChangeHandler2 = (event) => {
     this.setState({ playerName2: event.target.value });
+  };
+  myChangeHandler3 = (event) => {
+    this.setState({ minGames: event.target.value });
   };
   optionChange = (event) => {
     this.setState({ monthOrYear: event.target.value });
@@ -144,12 +176,14 @@ class Query6 extends React.Component {
           type: "spline",
           name: this.state.playerName1,
           showInLegend: true,
+          markerType: "circle",
           dataPoints: player1,
         },
         {
           type: "spline",
           name: this.state.playerName2,
           showInLegend: true,
+          markerType: "square",
           dataPoints: player2,
         },
       ],
@@ -163,8 +197,12 @@ class Query6 extends React.Component {
             <input type="text" onChange={this.myChangeHandler1} />
           </label>
           <label>
-            Player Name 2:
+            Player Name 2: Type "Other" to get all other Players
             <input type="text" onChange={this.myChangeHandler2} />
+          </label>
+          <label>
+            Enter Minimum Number of Games:
+            <input type="text" onChange={this.myChangeHandler3} />
           </label>
           <label>
             Group by:
