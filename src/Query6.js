@@ -22,11 +22,6 @@ function test(param) {
     " sum(Assists) * 34.677 + sum(Defensive_rebounds) * 14.707 - sum(personal_fouls) * 17.174 - (sum(freethrows_attempted) - sum(freethrows_made)) * 20.091 -" +
     " (sum(fieldgoals_attempted) - sum(fieldgoals_made)) * 39.190 - sum(turnovers) * 53.897) AS PER, ";
 
-  //"(1/(SUM(seconds_played)/60)) * " +
-  //"((SUM(fieldgoals_made) * 85.910) + sum(steals) * 53.897 + sum(threepoints_made) * 51.757 + sum(freethrows_made) * 46.845 + sum(blocks) * " +
-  //"39.190 + sum(offensive_rebounds) * 39.190 + sum(Assists) * 34.677 + sum(Defensive_rebounds) * 14.707 - sum(personal_fouls) * 17.174 - " +
-  //"(sum(freethrows_attempted) - sum(freethrows_made)) * 20.091 - (sum(fieldgoals_attempted) - sum(fieldgoals_made)) * 39.190 - sum(turnovers) * 53.897) AS PER, ";
-
   let stringPlayer2;
 
   if (param.playerName2 === "Other" || param.playerName2 === "other") {
@@ -34,6 +29,7 @@ function test(param) {
   } else {
     stringPlayer2 = "= upper('" + adjustedName2 + "') ";
   }
+
   let queryPlayer2;
 
   if (param.playerName2 === "") {
@@ -80,7 +76,6 @@ function test(param) {
       var obj = JSON.parse(xhr.responseText);
       //div.innerHTML = xhr.responseText;
       // document.body.appendChild(div);
-
       for (var i = 0; i < obj.message.rows.length; i++) {
         if (
           obj.message.rows[i][0].toLowerCase() ===
