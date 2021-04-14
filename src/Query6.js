@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { CanvasJSChart } from "canvasjs-react-charts";
 import "./Query6.css";
+import e from "cors";
 
 var player1 = [];
 var player2 = [];
@@ -30,6 +31,17 @@ function test(param) {
     stringPlayer2 = "= upper('" + adjustedName2 + "') ";
   }
 
+  let querydate1;
+  let querydate2;
+
+  if (param.monthOrYear == 1) {
+    querydate1 = "MONTH";
+    querydate2 = "YYYY-MM";
+  } else {
+    querydate1 = "YEAR";
+    querydate2 = "YYYY";
+  }
+
   let queryPlayer2;
 
   if (param.playerName2 === "") {
@@ -41,24 +53,36 @@ function test(param) {
       adjustedName2 +
       "' as Name, Count(game_ID) as num, " +
       PERcalculation +
-      " Trunc(Game_Date, 'Month') " +
+      " Trunc(Game_Date, '" +
+      querydate1 +
+      "') " +
       "FROM JAWATSON.players NATURAL JOIN JAWATSON.games_details NATURAL JOIN JAWATSON.games " +
       "where upper(PLAYER_NAME) " +
       stringPlayer2 +
-      "and Seconds_played > 0 GROUP BY Trunc(Game_Date, 'Month')";
+      "and Seconds_played > 0 GROUP BY Trunc(Game_Date, '" +
+      querydate1 +
+      "')";
   }
 
   var data =
     "query=" +
-    "SELECT Name, PER,  to_char(\"TRUNC(GAME_DATE,'MONTH')\",'YYYY-MM') as \"Date\" FROM (SELECT '" +
+    "SELECT Name, PER,  to_char(\"TRUNC(GAME_DATE,'" +
+    querydate1 +
+    "')\",'" +
+    querydate2 +
+    "') as \"Date\" FROM (SELECT '" +
     adjustedName1 +
     "' as Name, Count(game_ID) as num, " +
     PERcalculation +
-    "Trunc(Game_Date, 'Month') " +
+    "Trunc(Game_Date, '" +
+    querydate1 +
+    "') " +
     "FROM JAWATSON.players NATURAL JOIN JAWATSON.games_details NATURAL JOIN JAWATSON.games " +
     "where upper(PLAYER_NAME) = upper('" +
     adjustedName1 +
-    "') and Seconds_played > 0  GROUP BY Trunc(Game_Date, 'Month') " +
+    "') and Seconds_played > 0  GROUP BY Trunc(Game_Date, '" +
+    querydate1 +
+    "') " +
     queryPlayer2 +
     ") WHERE num > " +
     param.minGames +
@@ -83,7 +107,6 @@ function test(param) {
         ) {
           player1.push({
             y: obj.message.rows[i][1],
-            label: obj.message.rows[i][2],
             x: new Date(
               obj.message.rows[i][2].substring(0, 4),
               obj.message.rows[i][2].substring(5, 7)
@@ -92,7 +115,6 @@ function test(param) {
         } else {
           player2.push({
             y: obj.message.rows[i][1],
-            label: obj.message.rows[i][2],
             x: new Date(
               obj.message.rows[i][2].substring(0, 4),
               obj.message.rows[i][2].substring(5, 7)
@@ -129,6 +151,8 @@ class Query6 extends React.Component {
   mySubmitHandler = (event) => {
     event.preventDefault();
     test(this.state);
+    var x = document.getElementById("chart");
+    x.hidden = false;
   };
   myChangeHandler1 = (event) => {
     this.setState({ playerName1: event.target.value });
@@ -161,7 +185,7 @@ class Query6 extends React.Component {
       },
       axisX: {
         title: "Date",
-        valueFormatString: "MM-YYYY",
+        valueFormatString: "YYYY",
       },
       toolTip: {
         shared: true,
@@ -217,8 +241,13 @@ class Query6 extends React.Component {
             </Link>
           </p>
         </form>
+        <div id="chart" hidden>
+          <CanvasJSChart
+            options={options}
+            onRef={(ref) => (this.chart = ref)}
+          />
+        </div>
 
-        <CanvasJSChart options={options} onRef={(ref) => (this.chart = ref)} />
         <br />
         <br />
       </>
