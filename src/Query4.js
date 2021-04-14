@@ -302,7 +302,7 @@ class Query4 extends React.Component {
     this.state = {
       firstTeam: "",
       secondTeam: "",
-      groupBy: "",
+      groupBy: "year",
       startDate: "",
       endDate: "",
       team1hName: "",
