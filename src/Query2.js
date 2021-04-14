@@ -93,6 +93,8 @@ class Query2 extends React.Component {
   mySubmitHandler = (event) => {
     event.preventDefault();
     test(this.state);
+    var x = document.getElementById("chart");
+    x.hidden = false;
   };
   myChangeHandler1 = (event) => {
     this.setState({ p1name: event.target.value });
@@ -135,12 +137,14 @@ class Query2 extends React.Component {
           type: "spline",
           name: this.state.p1name,
           showInLegend: true,
+          markerType: "circle",
           dataPoints: p1,
         },
         {
           type: "spline",
           name: this.state.p2name,
           showInLegend: true,
+          markerType: "square",
           dataPoints: p2,
         },
       ],
@@ -154,9 +158,10 @@ class Query2 extends React.Component {
             <input type="text" onChange={this.myChangeHandler1} />
           </label>
           <label>
-            Player Name 2:
+            Player Name 2 (Type 'Other' to see all other players):
             <input type="text" onChange={this.myChangeHandler2} />
           </label>
+          <br />
           <label>
               Choose a stat:
               <select multiple={false} value={this.props.chosenStat} onChange={this.myChangeHandler3}>
@@ -186,14 +191,19 @@ class Query2 extends React.Component {
                   <option value={"0"}>Year</option>
               </select>
           </label>
+          <br />
+          <br />
           <input type="submit" />
+          <br />
+        </form>
         <Link to="/">
           <button variant="outlined">Home</button>
         </Link>
-        </form>
-
-        <CanvasJSChart options={options} onRef={(ref) => (this.chart = ref)} />
         <br />
+        <br />
+        <div id="chart" hidden>
+        <CanvasJSChart options={options} onRef={(ref) => (this.chart = ref)} />
+        </div>
         <br />
       </>
     );
