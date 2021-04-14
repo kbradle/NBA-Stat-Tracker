@@ -116,12 +116,12 @@ function test(firstTeam, secondTeam, groupBy, allOthers, startDate, endDate) {
           if (obj.message.rows[i][0] === firstTeam) {
             team1.push({
               y: obj.message.rows[i][1],
-              x: new Date(obj.message.rows[i][2], 0),
+              label:  obj.message.rows[i][2]
             });
           } else {
             team2.push({
               y: obj.message.rows[i][1],
-              x: new Date(obj.message.rows[i][2], 0),
+              label:  obj.message.rows[i][2]
             });
           }
         }
@@ -148,7 +148,7 @@ function test(firstTeam, secondTeam, groupBy, allOthers, startDate, endDate) {
         for (i = 0; i < obj.message.rows.length; i++) {
           others.push({
             y: obj.message.rows[i][0],
-            x: new Date(obj.message.rows[i][1], 0),
+            label: obj.message.rows[i][1] 
           });
         }
       }
