@@ -172,8 +172,8 @@ class Query1 extends React.Component {
     this.state = {
       firstTeam: "",
       secondTeam: "",
-      allOthers: "",
-      groupBy: "",
+      allOthers: "false",
+      groupBy: "year",
       startDate: "",
       endDate: "",
       team1Name: "",

@@ -38,7 +38,7 @@ function test(param) {
   let querydate1;
   let querydate2;
 
-  if (param.monthOrYear === 1) {
+  if (param.monthOrYear === "month") {
     querydate1 = "MONTH";
     querydate2 = "YYYY-MM";
   } else {
@@ -146,7 +146,7 @@ class Query5 extends React.Component {
     this.state = {
       playerName1: "",
       playerName2: "",
-      monthOrYear: 1,
+      monthOrYear: "year",
       minGames: 0,
     };
     this.updateChart = this.updateChart.bind(this);
@@ -223,20 +223,29 @@ class Query5 extends React.Component {
             Player Name 2: Type "Other" to get all other Players
             <input type="text" onChange={this.myChangeHandler2} />
           </label>
+          <br/>
           <label>
             Enter Minimum Number of Games:
-            <input type="text" onChange={this.myChangeHandler3} required />
+            <input type="number" min ="0" max = "40" onChange={this.myChangeHandler3} required />
           </label>
           <label>
-            Group by:
-            <select
-              multiple={false}
-              value={this.props.monthOrYear}
+            
+            <div className="radio">
+            <input
+              type="radio"
+              value="year"
+              checked={this.state.monthOrYear === "year"}
               onChange={this.optionChange}
-            >
-              <option value={1}>Month</option>
-              <option value={2}>Year</option>
-            </select>
+            />
+            yearly
+            <input
+              type="radio"
+              value="month"
+              checked={this.state.monthOrYear === "month"}
+              onChange={this.optionChange}
+            />
+            monthly
+          </div>
           </label>
           <p>
             <input type="submit" />
