@@ -29,11 +29,11 @@ function test(param) {
   let data;
 
   if (param.p2name === "Other" || param.p2name === "other") {
-    data = "query=SELECT Name, AVG(P36), " + monthOrYearString1 + " as \"Date\" FROM (SELECT players.player_name AS Name, ((games_details." + param.chosenStat + " / games_details.seconds_played) * 2160) AS P36, " + monthOrYearString2 + " FROM players, games_details, games WHERE games_details.player_ID = players.player_ID AND games.game_ID = games_details.game_ID AND (UPPER(players.player_name) = " + finalName1 + ") AND games_details.seconds_played != 0 UNION SELECT players.player_name AS Name, ((games_details." + param.chosenStat + " / games_details.seconds_played) * 2160) AS P36, " + monthOrYearString2 + " FROM players, games_details, games WHERE games_details.player_ID = players.player_ID AND games.game_ID = games_details.game_ID AND (UPPER(players.player_name) != " + finalName1 + ") AND games_details.seconds_played != 0) GROUP BY " + monthOrYearString1 + ", Name ORDER BY \"Date\" ASC";
+    data = "query=SELECT Name, AVG(P36), " + monthOrYearString1 + " as \"Date\" FROM (SELECT jawatson.players.player_name AS Name, ((jawatson.games_details." + param.chosenStat + " / jawatson.games_details.seconds_played) * 2160) AS P36, " + monthOrYearString2 + " FROM jawatson.players, jawatson.games_details, jawatson.games WHERE jawatson.games_details.player_ID = jawatson.players.player_ID AND jawatson.games.game_ID = jawatson.games_details.game_ID AND (UPPER(jawatson.players.player_name) = " + finalName1 + ") AND jawatson.games_details.seconds_played != 0 UNION SELECT jawatson.players.player_name AS Name, ((jawatson.games_details." + param.chosenStat + " / jawatson.games_details.seconds_played) * 2160) AS P36, " + monthOrYearString2 + " FROM jawatson.players, jawatson.games_details, jawatson.games WHERE jawatson.games_details.player_ID = jawatson.players.player_ID AND jawatson.games.game_ID = jawatson.games_details.game_ID AND (UPPER(jawatson.players.player_name) != " + finalName1 + ") AND jawatson.games_details.seconds_played != 0) GROUP BY " + monthOrYearString1 + ", Name ORDER BY \"Date\" ASC";
   } else {
     var adjustedName2 = param.p2name.replaceAll("'", "''");
     var finalName2 = "UPPER('"+adjustedName2+"')";
-    data = "query=SELECT Name, AVG(P36), " + monthOrYearString1 + " as \"Date\" FROM (SELECT players.player_name AS Name, ((games_details." + param.chosenStat + " / games_details.seconds_played) * 2160) AS P36, " + monthOrYearString2 + " FROM players, games_details, games WHERE games_details.player_ID = players.player_ID AND games.game_ID = games_details.game_ID AND (UPPER(players.player_name) = " + finalName1 + ") AND games_details.seconds_played != 0 UNION SELECT players.player_name AS Name, ((games_details." + param.chosenStat + " / games_details.seconds_played) * 2160) AS P36, " + monthOrYearString2 + " FROM players, games_details, games WHERE games_details.player_ID = players.player_ID AND games.game_ID = games_details.game_ID AND (UPPER(players.player_name) = " + finalName2 + ") AND games_details.seconds_played != 0) GROUP BY " + monthOrYearString1 + ", Name ORDER BY \"Date\" ASC";
+    data = "query=SELECT Name, AVG(P36), " + monthOrYearString1 + " as \"Date\" FROM (SELECT jawatson.players.player_name AS Name, ((jawatson.games_details." + param.chosenStat + " / jawatson.games_details.seconds_played) * 2160) AS P36, " + monthOrYearString2 + " FROM jawatson.players, jawatson.games_details, jawatson.games WHERE jawatson.games_details.player_ID = jawatson.players.player_ID AND jawatson.games.game_ID = jawatson.games_details.game_ID AND (UPPER(jawatson.players.player_name) = " + finalName1 + ") AND jawatson.games_details.seconds_played != 0 UNION SELECT jawatson.players.player_name AS Name, ((jawatson.games_details." + param.chosenStat + " / jawatson.games_details.seconds_played) * 2160) AS P36, " + monthOrYearString2 + " FROM jawatson.players, jawatson.games_details, jawatson.games WHERE jawatson.games_details.player_ID = jawatson.players.player_ID AND jawatson.games.game_ID = jawatson.games_details.game_ID AND (UPPER(jawatson.players.player_name) = " + finalName2 + ") AND jawatson.games_details.seconds_played != 0) GROUP BY " + monthOrYearString1 + ", Name ORDER BY \"Date\" ASC";
   }
 
   //var data = "query=SELECT Name, P36, to_char(\"TRUNC(GAME_DATE,'MONTH')\",'YYYY-MM') as \"Date\" FROM (SELECT players.player_name AS Name, ((games_details." + param.chosenStat + " / games_details.seconds_played) * 2160) AS P36, Trunc(Game_Date, 'Month') FROM players, games_details, games WHERE games_details.player_ID = players.player_ID AND games.game_ID = games_details.game_ID AND (UPPER(players.player_name) = " + finalName1 + ") AND games_details.seconds_played != 0 UNION SELECT players.player_name AS Name, ((games_details." + param.chosenStat + " / games_details.seconds_played) * 2160) AS P36, Trunc(Game_Date, 'Month') FROM players, games_details, games WHERE games_details.player_ID = players.player_ID AND games.game_ID = games_details.game_ID AND (UPPER(players.player_name) = " + finalName2 + ") AND games_details.seconds_played != 0) ORDER BY \"Date\" ASC";
@@ -155,16 +155,16 @@ class Query2 extends React.Component {
         <form onSubmit={this.mySubmitHandler}>
           <label>
             Player Name 1:
-            <input type="text" onChange={this.myChangeHandler1} />
+            <input type="text" onChange={this.myChangeHandler1} required />
           </label>
           <label>
             Player Name 2 (Type 'Other' to see all other players):
-            <input type="text" onChange={this.myChangeHandler2} />
+            <input type="text" onChange={this.myChangeHandler2} required />
           </label>
           <br />
           <label>
               Choose a stat:
-              <select multiple={false} value={this.props.chosenStat} onChange={this.myChangeHandler3}>
+              <select multiple={false} value={this.props.chosenStat} onChange={this.myChangeHandler3} required>
                   <option value={""}>-- Choose Statistic --</option>
                   <option value={"fieldgoals_made"}>Fieldgoals Made</option>
                   <option value={"fieldgoals_attempted"}>Fieldgoals Attempted</option>
@@ -185,7 +185,7 @@ class Query2 extends React.Component {
           </label>
           <label>
               Group By:
-              <select multiple={false} value={this.props.monthOrYear} onChange={this.myChangeHandler4}>
+              <select multiple={false} value={this.props.monthOrYear} onChange={this.myChangeHandler4} required>
                   <option value={""}>-- Choose Date Configuration --</option>
                   <option value={"1"}>Month</option>
                   <option value={"0"}>Year</option>
