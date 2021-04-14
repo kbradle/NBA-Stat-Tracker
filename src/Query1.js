@@ -93,10 +93,10 @@ function test(firstTeam, secondTeam, groupBy, allOthers, startDate, endDate) {
     if (xhr.status !== 200) {
       alert(`Error ${xhr.status}: ${xhr.statusText}`);
     } else {
-      //var div = document.createElement("div");
+     //var div = document.createElement("div");
       var obj = JSON.parse(xhr.responseText);
-      //div.innerHTML = xhr.responseText;
-      // document.body.appendChild(div);
+      //div.innerHTML = xhrAll.responseText;
+       //document.body.appendChild(div);
       if (groupBy === "month") {
         for (var i = 0; i < obj.message.rows.length; i++) {
           if (obj.message.rows[i][0] === firstTeam) {
@@ -133,19 +133,22 @@ function test(firstTeam, secondTeam, groupBy, allOthers, startDate, endDate) {
     if (xhrAll.status !== 200) {
       alert(`Error ${xhrAll.status}: ${xhrAll.statusText}`);
     } else {
-      var obj = JSON.parse(xhrAll.responseText);
+        //var div = document.createElement("div");    
+        var obj = JSON.parse(xhrAll.responseText);
+        // div.innerHTML = xhrAll.responseText;
+        // document.body.appendChild(div);
       if (groupBy === "month") {
         for (var i = 0; i < obj.message.rows.length; i++) {
           others.push({
             y: obj.message.rows[i][0],
-            x: new Date(obj.message.rows[i][2], obj.message.rows[i][3]),
+            x: new Date(obj.message.rows[i][1], obj.message.rows[i][2]),
           });
         }
       } else {
         for (i = 0; i < obj.message.rows.length; i++) {
           others.push({
             y: obj.message.rows[i][0],
-            x: new Date(obj.message.rows[i][2], 0),
+            x: new Date(obj.message.rows[i][1], 0),
           });
         }
       }
