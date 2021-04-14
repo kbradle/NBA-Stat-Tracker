@@ -150,7 +150,6 @@ class Query6 extends React.Component {
       playerName2: "",
       monthOrYear: 1,
       minGames: 0,
-      xvalueFormatString: "MM-YYYY",
     };
     this.updateChart = this.updateChart.bind(this);
     this.chart = "";
@@ -158,6 +157,8 @@ class Query6 extends React.Component {
   mySubmitHandler = (event) => {
     event.preventDefault();
     test(this.state);
+    var x = document.getElementById("chart");
+    x.hidden = false;
   };
   myChangeHandler1 = (event) => {
     this.setState({ playerName1: event.target.value });
@@ -246,8 +247,13 @@ class Query6 extends React.Component {
             </Link>
           </p>
         </form>
+        <div id="chart" hidden>
+          <CanvasJSChart
+            options={options}
+            onRef={(ref) => (this.chart = ref)}
+          />
+        </div>
 
-        <CanvasJSChart options={options} onRef={(ref) => (this.chart = ref)} />
         <br />
         <br />
       </>
