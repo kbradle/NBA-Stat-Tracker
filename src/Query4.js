@@ -16,11 +16,11 @@ function test(firstTeam, secondTeam, groupBy, allOthers, startDate, endDate) {
   team2.length = 0;
   others.length = 0;
 
-  let xhr = new XMLHttpRequest();
+  let xhrTeam1 = new XMLHttpRequest();
   xhr.open("POST", "http://localhost:8080");
   xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 
-  let xhrAll = new XMLHttpRequest();
+  let xhrTeam2 = new XMLHttpRequest();
   xhrAll.open("POST", "http://localhost:8080");
   xhrAll.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 
@@ -35,7 +35,7 @@ function test(firstTeam, secondTeam, groupBy, allOthers, startDate, endDate) {
       "', 'YYYY-MM-DD') and g.game_date <= to_date('" +
       endDate +
       "', 'YYYY-MM-DD')) group by t.team_name, Extract(year from g.game_date), Extract(month from g.game_date) order by Extract(year from g.game_date), Extract(month from g.game_date) asc";
-    xhr.send(data);
+    xhrTeam1.send(data);
 
     if (allOthers === "true") {
       var count = 0;
@@ -53,7 +53,7 @@ function test(firstTeam, secondTeam, groupBy, allOthers, startDate, endDate) {
         "', 'YYYY-MM-DD') and g.game_date <= to_date('" +
         endDate +
         "', 'YYYY-MM-DD')) group by Extract(year from g.game_date), Extract(month from g.game_date) order by Extract(year from g.game_date), Extract(month from g.game_date) asc";
-      xhrAll.send(temp);
+      xhrTeam2.send(temp);
     }
   } else {
     var data1 =
@@ -66,7 +66,7 @@ function test(firstTeam, secondTeam, groupBy, allOthers, startDate, endDate) {
       "', 'YYYY-MM-DD') and g.game_date <= to_date('" +
       endDate +
       "', 'YYYY-MM-DD')) group by t.team_name, Extract(year from g.game_date) order by Extract(year from g.game_date) asc";
-    xhr.send(data1);
+    xhrTeam1.send(data1);
 
     if (allOthers === "true") {
       var count1 = 0;
@@ -84,7 +84,7 @@ function test(firstTeam, secondTeam, groupBy, allOthers, startDate, endDate) {
         "', 'YYYY-MM-DD') and g.game_date <= to_date('" +
         endDate +
         "', 'YYYY-MM-DD')) group by Extract(year from g.game_date) order by Extract(year from g.game_date) asc";
-      xhrAll.send(temp1);
+      xhrTeam2.send(temp1);
     }
   }
 
