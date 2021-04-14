@@ -2,135 +2,172 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { CanvasJSChart } from "canvasjs-react-charts";
 
-// 2 teams as input --- X
+// 2 teams as input --- X --- DONE (JAKE)
 // option to compare against avg(rest of league) --- X
 // group by month --- X
 // edit start/end dates --- X
 
-var team1 = [];
-var team2 = [];
+var team1h = [];
+var team1a = [];
+var team2h = [];
+var team2a = [];
 var others = [];
 
 function test(firstTeam, secondTeam, groupBy, allOthers, startDate, endDate) {
-  team1.length = 0;
-  team2.length = 0;
+  team1h.length = 0;
+  team1a.length = 0;
+  team2h.length = 0;
+  team2a.length = 0;
   others.length = 0;
 
-  let xhrTeam1 = new XMLHttpRequest();
-  xhrTeam1.open("POST", "http://localhost:8080");
-  xhrTeam1.setRequestHeader(
+
+  let xhrteam1h = new XMLHttpRequest();
+  xhrteam1h.open("POST", "http://localhost:8080");
+  xhrteam1h.setRequestHeader(
     "Content-Type",
     "application/x-www-form-urlencoded"
   );
 
-  let xhrTeam2 = new XMLHttpRequest();
-  xhrTeam2.open("POST", "http://localhost:8080");
-  xhrTeam2.setRequestHeader(
+  let xhrteam1a = new XMLHttpRequest();
+  xhrteam1a.open("POST", "http://localhost:8080");
+  xhrteam1a.setRequestHeader(
     "Content-Type",
     "application/x-www-form-urlencoded"
   );
+
+  let xhrteam2h = new XMLHttpRequest();
+  xhrteam2h.open("POST", "http://localhost:8080");
+  xhrteam2h.setRequestHeader(
+    "Content-Type",
+    "application/x-www-form-urlencoded"
+  );
+
+  let xhrteam2a = new XMLHttpRequest();
+  xhrteam2a.open("POST", "http://localhost:8080");
+  xhrteam2a.setRequestHeader(
+    "Content-Type",
+    "application/x-www-form-urlencoded"
+  );
+
+  let monthOrYear1;
+  let monthOrYear2;
+  let monthOrYear3;
+  let monthOrYear4;
 
   if (groupBy === "month") {
-    var data =
-      "query= SELECT HomeWins/(AwayWins + HomeWins) as WinPct, HomeYear, homeMonth FROM (Select Count(*) AS homeWins, Extract(year from Game_Date) as homeYear, Extract(month from Game_date) as homeMonth " +
-      "from JAWATSON.games games, JAWATSON.teams teams " +
-      "where games.home_team_id = teams.team_id and team_name ='" +
-      firstTeam +
-      "' and games.game_date >= to_date('" +
-      startDate +
-      "', 'YYYY-MM-DD') and games.game_date <= to_date('" +
-      endDate +
-      "', 'YYYY-MM-DD') and Home_Points > Away_Points Group By Extract(year from Game_date), Extract(month from Game_date)), " +
-      "(Select Count(*) AS awayWins, Extract(year from Game_Date) as awayYear, Extract(month from Game_date) as Month " +
-      "from JAWATSON.games games, JAWATSON.teams teams " +
-      "where games.home_team_id = teams.team_id and team_name ='" +
-      firstTeam +
-      "' and (games.game_date >= to_date('" +
-      startDate +
-      "', 'YYYY-MM-DD') and games.game_date <= to_date('" +
-      endDate +
-      "', 'YYYY-MM-DD') and Home_Points < Away_Points) Group By Extract(year from Game_date), Extract(month from Game_date)) " +
-      "WHERE homeYear = AwayYear Order By HomeYear, HomeMonth asc";
-    data = data.replaceAll("+", "%2B");
-    xhrTeam1.send(data);
-
-    var temp =
-      "query= SELECT HomeWins/(AwayWins + HomeWins) as WinPct, HomeYear, homeMonth FROM (Select Count(*) AS homeWins, Extract(year from Game_Date) as homeYear, Extract(month from Game_date) as homeMonth " +
-      "from JAWATSON.games games, JAWATSON.teams teams " +
-      "where games.visitor_team_id = teams.team_id and team_name ='" +
-      firstTeam +
-      "' and games.game_date >= to_date('" +
-      startDate +
-      "', 'YYYY-MM-DD') and games.game_date <= to_date('" +
-      endDate +
-      "', 'YYYY-MM-DD') and Home_Points > Away_Points Group By Extract(year from Game_date), Extract(month from Game_date)), " +
-      "(Select Count(*) AS awayWins, Extract(year from Game_Date) as awayYear, Extract(month from Game_date) as Month " +
-      "from JAWATSON.games games, JAWATSON.teams teams " +
-      "where games.visitor_team_id = teams.team_id and team_name ='" +
-      firstTeam +
-      "' and (games.game_date >= to_date('" +
-      startDate +
-      "', 'YYYY-MM-DD') and games.game_date <= to_date('" +
-      endDate +
-      "', 'YYYY-MM-DD') and Home_Points < Away_Points) Group By Extract(year from Game_date), Extract(month from Game_date)) " +
-      "WHERE homeYear = AwayYear Order By HomeYear, HomeMonth asc";
-    temp = temp.replaceAll("+", "%2B");
-    xhrTeam2.send(temp);
+    monthOrYear1 = ", homeMonth";
+    monthOrYear2 = ", Extract(month from Game_date) as homeMonth";
+    monthOrYear3 = ", Extract(month from Game_date)";
+    monthOrYear4 = ", Extract(month from Game_date) as Month";
   } else {
-    var data1 =
-      "query= SELECT HomeWins/(AwayWins + HomeWins) as WinPct, HomeYear FROM (Select Count(*) AS homeWins, Extract(year from Game_Date) as homeYear " +
-      "from JAWATSON.games games, JAWATSON.teams teams " +
-      "where games.home_team_id = teams.team_id and team_name ='" +
-      firstTeam +
-      "' and games.game_date >= to_date('" +
-      startDate +
-      "', 'YYYY-MM-DD') and games.game_date <= to_date('" +
-      endDate +
-      "', 'YYYY-MM-DD') and Home_Points > Away_Points Group By Extract(year from Game_date)), " +
-      "(Select Count(*) AS awayWins, Extract(year from Game_Date) as awayYear " +
-      "from JAWATSON.games games, JAWATSON.teams teams " +
-      "where games.home_team_id = teams.team_id and team_name ='" +
-      firstTeam +
-      "' and (games.game_date >= to_date('" +
-      startDate +
-      "', 'YYYY-MM-DD') and games.game_date <= to_date('" +
-      endDate +
-      "', 'YYYY-MM-DD') and Home_Points < Away_Points) Group By Extract(year from Game_date)) " +
-      "WHERE homeYear = AwayYear Order By HomeYear asc";
-    data1 = data1.replaceAll("+", "%2B");
-    xhrTeam1.send(data1);
-
-    var temp1 =
-      "query= SELECT HomeWins/(AwayWins + HomeWins) as WinPct, HomeYear FROM (Select Count(*) AS homeWins, Extract(year from Game_Date) as homeYear " +
-      "from JAWATSON.games games, JAWATSON.teams teams " +
-      "where games.visitor_team_id = teams.team_id and team_name ='" +
-      firstTeam +
-      "' and games.game_date >= to_date('" +
-      startDate +
-      "', 'YYYY-MM-DD') and games.game_date <= to_date('" +
-      endDate +
-      "', 'YYYY-MM-DD') and Home_Points > Away_Points Group By Extract(year from Game_date)), " +
-      "(Select Count(*) AS awayWins, Extract(year from Game_Date) as awayYear " +
-      "from JAWATSON.games games, JAWATSON.teams teams " +
-      "where games.visitor_team_id = teams.team_id and team_name ='" +
-      firstTeam +
-      "' and (games.game_date >= to_date('" +
-      startDate +
-      "', 'YYYY-MM-DD') and games.game_date <= to_date('" +
-      endDate +
-      "', 'YYYY-MM-DD') and Home_Points < Away_Points) Group By Extract(year from Game_date)) " +
-      "WHERE homeYear = AwayYear Order By HomeYear asc";
-    temp1 = temp1.replaceAll("+", "%2B");
-    xhrTeam2.send(temp1);
+    monthOrYear1 = "";
+    monthOrYear2 = "";
+    monthOrYear3 = "";
+    monthOrYear4 = "";
   }
 
+  //team1 queries
+  var data =
+      "query= SELECT HomeWins/(AwayWins + HomeWins) as WinPct, HomeYear"+monthOrYear1+" FROM (Select Count(*) AS homeWins, Extract(year from Game_Date) as homeYear"+monthOrYear2+" " +
+      "from JAWATSON.games games, JAWATSON.teams teams " +
+      "where games.home_team_id = teams.team_id and team_name ='" +
+      firstTeam +
+      "' and games.game_date >= to_date('" +
+      startDate +
+      "', 'YYYY-MM-DD') and games.game_date <= to_date('" +
+      endDate +
+      "', 'YYYY-MM-DD') and Home_Points > Away_Points Group By Extract(year from Game_date)"+monthOrYear3+"), " +
+      "(Select Count(*) AS awayWins, Extract(year from Game_Date) as awayYear"+monthOrYear4+" " +
+      "from JAWATSON.games games, JAWATSON.teams teams " +
+      "where games.home_team_id = teams.team_id and team_name ='" +
+      firstTeam +
+      "' and (games.game_date >= to_date('" +
+      startDate +
+      "', 'YYYY-MM-DD') and games.game_date <= to_date('" +
+      endDate +
+      "', 'YYYY-MM-DD') and Home_Points < Away_Points) Group By Extract(year from Game_date)"+monthOrYear3+") " +
+      "WHERE homeYear = AwayYear Order By HomeYear"+monthOrYear1+" asc";
+    data = data.replaceAll("+", "%2B");
+    xhrteam1h.send(data);
+
+  var temp =
+    "query= SELECT HomeWins/(AwayWins + HomeWins) as WinPct, HomeYear"+monthOrYear1+" FROM (Select Count(*) AS homeWins, Extract(year from Game_Date) as homeYear"+monthOrYear2+" " +
+    "from JAWATSON.games games, JAWATSON.teams teams " +
+    "where games.visitor_team_id = teams.team_id and team_name ='" +
+    firstTeam +
+    "' and games.game_date >= to_date('" +
+    startDate +
+    "', 'YYYY-MM-DD') and games.game_date <= to_date('" +
+    endDate +
+    "', 'YYYY-MM-DD') and Home_Points > Away_Points Group By Extract(year from Game_date)"+monthOrYear3+"), " +
+    "(Select Count(*) AS awayWins, Extract(year from Game_Date) as awayYear"+monthOrYear4+" " +
+    "from JAWATSON.games games, JAWATSON.teams teams " +
+    "where games.visitor_team_id = teams.team_id and team_name ='" +
+    firstTeam +
+    "' and (games.game_date >= to_date('" +
+    startDate +
+    "', 'YYYY-MM-DD') and games.game_date <= to_date('" +
+    endDate +
+    "', 'YYYY-MM-DD') and Home_Points < Away_Points) Group By Extract(year from Game_date)"+monthOrYear3+") " +
+    "WHERE homeYear = AwayYear Order By HomeYear"+monthOrYear1+" asc";
+  temp = temp.replaceAll("+", "%2B");
+  xhrteam1a.send(temp);
+
+
+  //team2 queries
+  var data2 =
+      "query= SELECT HomeWins/(AwayWins + HomeWins) as WinPct, HomeYear"+monthOrYear1+" FROM (Select Count(*) AS homeWins, Extract(year from Game_Date) as homeYear"+monthOrYear2+" " +
+      "from JAWATSON.games games, JAWATSON.teams teams " +
+      "where games.home_team_id = teams.team_id and team_name ='" +
+      secondTeam +
+      "' and games.game_date >= to_date('" +
+      startDate +
+      "', 'YYYY-MM-DD') and games.game_date <= to_date('" +
+      endDate +
+      "', 'YYYY-MM-DD') and Home_Points > Away_Points Group By Extract(year from Game_date)"+monthOrYear3+"), " +
+      "(Select Count(*) AS awayWins, Extract(year from Game_Date) as awayYear"+monthOrYear4+" " +
+      "from JAWATSON.games games, JAWATSON.teams teams " +
+      "where games.home_team_id = teams.team_id and team_name ='" +
+      secondTeam +
+      "' and (games.game_date >= to_date('" +
+      startDate +
+      "', 'YYYY-MM-DD') and games.game_date <= to_date('" +
+      endDate +
+      "', 'YYYY-MM-DD') and Home_Points < Away_Points) Group By Extract(year from Game_date)"+monthOrYear3+") " +
+      "WHERE homeYear = AwayYear Order By HomeYear"+monthOrYear1+" asc";
+    data2 = data2.replaceAll("+", "%2B");
+    xhrteam2h.send(data2);
+
+  var temp2 =
+    "query= SELECT HomeWins/(AwayWins + HomeWins) as WinPct, HomeYear"+monthOrYear1+" FROM (Select Count(*) AS homeWins, Extract(year from Game_Date) as homeYear"+monthOrYear2+" " +
+    "from JAWATSON.games games, JAWATSON.teams teams " +
+    "where games.visitor_team_id = teams.team_id and team_name ='" +
+    secondTeam +
+    "' and games.game_date >= to_date('" +
+    startDate +
+    "', 'YYYY-MM-DD') and games.game_date <= to_date('" +
+    endDate +
+    "', 'YYYY-MM-DD') and Home_Points > Away_Points Group By Extract(year from Game_date)"+monthOrYear3+"), " +
+    "(Select Count(*) AS awayWins, Extract(year from Game_Date) as awayYear"+monthOrYear4+" " +
+    "from JAWATSON.games games, JAWATSON.teams teams " +
+    "where games.visitor_team_id = teams.team_id and team_name ='" +
+    secondTeam +
+    "' and (games.game_date >= to_date('" +
+    startDate +
+    "', 'YYYY-MM-DD') and games.game_date <= to_date('" +
+    endDate +
+    "', 'YYYY-MM-DD') and Home_Points < Away_Points) Group By Extract(year from Game_date)"+monthOrYear3+") " +
+    "WHERE homeYear = AwayYear Order By HomeYear"+monthOrYear1+" asc";
+  temp2 = temp2.replaceAll("+", "%2B");
+  xhrteam2a.send(temp2);
+
   // called after the response is received
-  xhrTeam1.onload = function () {
-    if (xhrTeam1.status !== 200) {
-      alert(`Error ${xhrTeam1.status}: ${xhrTeam1.statusText}`);
+  xhrteam1h.onload = function () {
+    if (xhrteam1h.status !== 200) {
+      alert(`Error ${xhrteam1h.status}: ${xhrteam1h.statusText}`);
     } else {
       //var div = document.createElement("div");
-      var obj = JSON.parse(xhrTeam1.responseText);
+      var obj = JSON.parse(xhrteam1h.responseText);
       //div.innerHTML = xhr.responseText;
       // document.body.appendChild(div);
       var monthNames = [
@@ -149,14 +186,14 @@ function test(firstTeam, secondTeam, groupBy, allOthers, startDate, endDate) {
       ];
       if (groupBy === "month") {
         for (var i = 0; i < obj.message.rows.length; i++) {
-          team1.push({
+          team1h.push({
             y: obj.message.rows[i][0],
             x: new Date(obj.message.rows[i][1], obj.message.rows[i][2]),
           });
         }
       } else {
         for (i = 0; i < obj.message.rows.length; i++) {
-          team1.push({
+          team1h.push({
             y: obj.message.rows[i][0],
             x: new Date(obj.message.rows[i][1], 0),
           });
@@ -165,11 +202,11 @@ function test(firstTeam, secondTeam, groupBy, allOthers, startDate, endDate) {
     }
   };
 
-  xhrTeam2.onload = function () {
-    if (xhrTeam2.status !== 200) {
-      alert(`Error ${xhrTeam2.status}: ${xhrTeam2.statusText}`);
+  xhrteam1a.onload = function () {
+    if (xhrteam1a.status !== 200) {
+      alert(`Error ${xhrteam1a.status}: ${xhrteam1a.statusText}`);
     } else {
-      var obj = JSON.parse(xhrTeam2.responseText);
+      var obj = JSON.parse(xhrteam1a.responseText);
       var monthNames = [
         "January",
         "February",
@@ -186,14 +223,14 @@ function test(firstTeam, secondTeam, groupBy, allOthers, startDate, endDate) {
       ];
       if (groupBy === "month") {
         for (var i = 0; i < obj.message.rows.length; i++) {
-          team2.push({
+          team1a.push({
             y: obj.message.rows[i][0],
             x: new Date(obj.message.rows[i][1], obj.message.rows[i][2]),
           });
         }
       } else {
         for (i = 0; i < obj.message.rows.length; i++) {
-          team2.push({
+          team1a.push({
             y: obj.message.rows[i][0],
             x: new Date(obj.message.rows[i][1], 0),
           });
@@ -202,13 +239,59 @@ function test(firstTeam, secondTeam, groupBy, allOthers, startDate, endDate) {
     }
   };
 
-  xhrTeam1.onprogress = function (event) {
+  xhrteam2h.onload = function () {
+    if (xhrteam2h.status !== 200) {
+      alert(`Error ${xhrteam2h.status}: ${xhrteam2h.statusText}`);
+    } else {
+      var obj = JSON.parse(xhrteam2h.responseText);
+      if (groupBy === "month") {
+        for (var i = 0; i < obj.message.rows.length; i++) {
+          team2h.push({
+            y: obj.message.rows[i][0],
+            x: new Date(obj.message.rows[i][1], obj.message.rows[i][2]),
+          });
+        }
+      } else {
+        for (i = 0; i < obj.message.rows.length; i++) {
+          team2h.push({
+            y: obj.message.rows[i][0],
+            x: new Date(obj.message.rows[i][1], 0),
+          });
+        }
+      }
+    }
+  };
+
+  xhrteam2a.onload = function () {
+    if (xhrteam2a.status !== 200) {
+      alert(`Error ${xhrteam2a.status}: ${xhrteam2a.statusText}`);
+    } else {
+      var obj = JSON.parse(xhrteam2a.responseText);
+      if (groupBy === "month") {
+        for (var i = 0; i < obj.message.rows.length; i++) {
+          team2a.push({
+            y: obj.message.rows[i][0],
+            x: new Date(obj.message.rows[i][1], obj.message.rows[i][2]),
+          });
+        }
+      } else {
+        for (i = 0; i < obj.message.rows.length; i++) {
+          team2a.push({
+            y: obj.message.rows[i][0],
+            x: new Date(obj.message.rows[i][1], 0),
+          });
+        }
+      }
+    }
+  };
+
+  xhrteam1h.onprogress = function (event) {
     if (!event.lengthComputable) {
       alert(`Received ${event.loaded} bytes`);
     }
   };
 
-  xhrTeam1.onerror = function () {
+  xhrteam1h.onerror = function () {
     alert("Request failed");
   };
 }
@@ -222,15 +305,15 @@ class Query4 extends React.Component {
       groupBy: "",
       startDate: "",
       endDate: "",
-      team1Name: "",
-      team2Name: "",
+      team1hName: "",
+      team1aName: "",
     };
     this.updateChart = this.updateChart.bind(this);
     this.chart = "";
   }
   mySubmitHandler = (event) => {
-    this.setState({ team1Name: this.state.firstTeam });
-    this.setState({ team2Name: this.state.secondTeam });
+    this.setState({ team1hName: this.state.firstTeam });
+    this.setState({ team2hName: this.state.secondTeam });
     event.preventDefault();
     test(
       this.state.firstTeam,
@@ -245,6 +328,9 @@ class Query4 extends React.Component {
   };
   ChangeFirst = (event) => {
     this.setState({ firstTeam: event.target.value });
+  };
+  ChangeSecond = (event) => {
+    this.setState({ secondTeam: event.target.value });
   };
   ChangeOption = (event) => {
     this.setState({ groupBy: event.target.value });
@@ -283,15 +369,31 @@ class Query4 extends React.Component {
       data: [
         {
           type: "spline",
-          name: this.state.team1Name + " Home Win%",
+          name: this.state.team1hName + " Home Win%",
           showInLegend: true,
-          dataPoints: team1,
+          markerType: "circle",
+          dataPoints: team1h,
         },
         {
           type: "spline",
-          name: this.state.team1Name + " Away Win%",
+          name: this.state.team1hName + " Away Win%",
           showInLegend: true,
-          dataPoints: team2,
+          markerType: "circle",
+          dataPoints: team1a,
+        },
+        {
+          type: "spline",
+          name: this.state.team2hName + " Home Win%",
+          showInLegend: true,
+          markerType: "square",
+          dataPoints: team2h,
+        },
+        {
+          type: "spline",
+          name: this.state.team2hName + " Away Win%",
+          showInLegend: true,
+          markerType: "square",
+          dataPoints: team2a,
         },
         {
           type: "spline",
@@ -336,10 +438,19 @@ class Query4 extends React.Component {
 
     return (
       <>
-        <h1>Compare Three Point Attempts</h1>
+        <h1>Determining Home Field Advantages Between Teams</h1>
         <form onSubmit={this.mySubmitHandler}>
-          <select onChange={this.ChangeFirst} required>
+          Team 1:
+          <select value={this.props.firstTeam} onChange={this.ChangeFirst} required>
             <option value="">First Team</option>
+            {teams.map((c) => (
+              <option key={c}>{c}</option>
+            ))}
+          </select>
+          <br />
+          Team 2:
+          <select value={this.props.secondTeam} onChange={this.ChangeSecond} required>
+            <option value="">Second Team</option>
             {teams.map((c) => (
               <option key={c}>{c}</option>
             ))}
