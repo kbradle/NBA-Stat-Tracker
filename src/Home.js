@@ -26,15 +26,15 @@ const Home = () => {
             <button variant="outlined">
                 Query #4
             </button>
-            </Link>
+            </Link>           
             <Link to="/query5">
             <button variant="outlined">
                 Query #5
             </button>
-            </Link>
-            <Link to="/query6">
+            </Link> 
+            <Link to="/info">
             <button variant="outlined">
-                Query #6
+                Info
             </button>
             </Link>
 
