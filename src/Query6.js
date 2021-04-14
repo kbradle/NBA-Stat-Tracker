@@ -2,7 +2,6 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { CanvasJSChart } from "canvasjs-react-charts";
 import "./Query6.css";
-import e from "cors";
 
 var player1 = [];
 var player2 = [];
@@ -39,7 +38,7 @@ function test(param) {
   let querydate1;
   let querydate2;
 
-  if (param.monthOrYear == 1) {
+  if (param.monthOrYear === 1) {
     querydate1 = "MONTH";
     querydate2 = "YYYY-MM";
   } else {
@@ -101,7 +100,6 @@ function test(param) {
     if (xhr.status !== 200) {
       alert(`Error ${xhr.status}: ${xhr.statusText}`);
     } else {
-      var div = document.createElement("div");
       var obj = JSON.parse(xhr.responseText);
       //div.innerHTML = xhr.responseText;
       // document.body.appendChild(div);
@@ -219,7 +217,7 @@ class Query6 extends React.Component {
         <form onSubmit={this.mySubmitHandler}>
           <label>
             Player Name 1:
-            <input type="text" onChange={this.myChangeHandler1} />
+            <input type="text" onChange={this.myChangeHandler1} required />
           </label>
           <label>
             Player Name 2: Type "Other" to get all other Players
@@ -227,7 +225,7 @@ class Query6 extends React.Component {
           </label>
           <label>
             Enter Minimum Number of Games:
-            <input type="text" onChange={this.myChangeHandler3} />
+            <input type="text" onChange={this.myChangeHandler3} required />
           </label>
           <label>
             Group by:

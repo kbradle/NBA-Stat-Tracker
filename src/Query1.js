@@ -97,20 +97,6 @@ function test(firstTeam, secondTeam, groupBy, allOthers, startDate, endDate) {
       var obj = JSON.parse(xhr.responseText);
       //div.innerHTML = xhr.responseText;
       // document.body.appendChild(div);
-      var monthNames = [
-        "January",
-        "February",
-        "March",
-        "April",
-        "May",
-        "June",
-        "July",
-        "August",
-        "September",
-        "October",
-        "November",
-        "December",
-      ];
       if (groupBy === "month") {
         for (var i = 0; i < obj.message.rows.length; i++) {
           if (obj.message.rows[i][0] === firstTeam) {
@@ -148,20 +134,6 @@ function test(firstTeam, secondTeam, groupBy, allOthers, startDate, endDate) {
       alert(`Error ${xhrAll.status}: ${xhrAll.statusText}`);
     } else {
       var obj = JSON.parse(xhrAll.responseText);
-      var monthNames = [
-        "January",
-        "February",
-        "March",
-        "April",
-        "May",
-        "June",
-        "July",
-        "August",
-        "September",
-        "October",
-        "November",
-        "December",
-      ];
       if (groupBy === "month") {
         for (var i = 0; i < obj.message.rows.length; i++) {
           others.push({
@@ -253,7 +225,7 @@ class Query1 extends React.Component {
     const options = {
       animationEnabled: true,
       title: {
-        text: "Three Point Attemps",
+        text: "Three Point Attempts",
       },
       axisY: {
         title: "Number of Three Pointers Attempted",
