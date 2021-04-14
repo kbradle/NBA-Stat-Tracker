@@ -4,8 +4,8 @@ import Query1 from './Query1';
 import Query2 from './Query2';
 import Query3 from './Query3';
 import Query4 from './Query4';
+import Info from './Info';
 import Query5 from './Query5';
-import Query6 from './Query6';
 import Home from './Home';
 
 function App() {
@@ -16,8 +16,8 @@ function App() {
         <Route exact path='/query2' component={Query2}></Route>
         <Route exact path='/query3' component={Query3}></Route>
         <Route exact path='/query4' component={Query4}></Route>
+        <Route exact path='/info' component={Info}></Route>
         <Route exact path='/query5' component={Query5}></Route>
-        <Route exact path='/query6' component={Query6}></Route>
       </Switch>
   );
 }

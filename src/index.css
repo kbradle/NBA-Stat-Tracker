@@ -7,9 +7,44 @@ body {
   -moz-osx-font-smoothing: grayscale;
   align-items: center;
   text-align: center;
+  background-color: rgb(58, 145, 207);
+  align-content: center;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+ button{
+  
+  background-color: black;
+  color: white;
+  font-size: 15px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  margin: 10px 0px;
+  cursor: pointer;
+} 
+ 
+
+
+input[type=submit] {
+  background-color: black;
+  color: white;
+  font-size: 15px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  margin: 10px 0px;
+  cursor: pointer;
+}
+
+button:hover{
+  color: black;
+  background-color:white;
+}
+
+input[type=submit]:hover{
+  color:  white;
+  background-color: #4CAF50;
+  }
