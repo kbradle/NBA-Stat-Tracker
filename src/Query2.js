@@ -5,6 +5,17 @@ import { CanvasJSChart } from "canvasjs-react-charts";
 var p1 = [];
 var p2 = [];
 
+function titleCase(string) {
+  if (string === "") {
+    return string;
+  }
+  string = string.toLowerCase().split(' ');
+  for (var i = 0; i < string.length; i++) {
+    string[i] = string[i].charAt(0).toUpperCase() + string[i].slice(1);
+  }
+  return string.join(' ');
+}
+
 function test(param) {
   p1.length = 0;
   p2.length = 0;
@@ -18,7 +29,7 @@ function test(param) {
   let monthOrYearString1;
   let monthOrYearString2;
 
-  if(param.monthOrYear === "0") {
+  if(param.monthOrYear === "year") {
     monthOrYearString1 = "to_char(\"TRUNC(GAME_DATE,'YEAR')\",'YYYY-MM')";
     monthOrYearString2 = "Trunc(Game_Date, 'Year')";
   } else {
@@ -28,13 +39,13 @@ function test(param) {
 
   let data;
 
-  if (param.p2name === "Other" || param.p2name === "other") {
-    data = "query=SELECT Name, AVG(P36), " + monthOrYearString1 + " as \"Date\" FROM (SELECT jawatson.players.player_name AS Name, ((jawatson.games_details." + param.chosenStat + " / jawatson.games_details.seconds_played) * 2160) AS P36, " + monthOrYearString2 + " FROM jawatson.players, jawatson.games_details, jawatson.games WHERE jawatson.games_details.player_ID = jawatson.players.player_ID AND jawatson.games.game_ID = jawatson.games_details.game_ID AND (UPPER(jawatson.players.player_name) = " + finalName1 + ") AND jawatson.games_details.seconds_played != 0 UNION SELECT jawatson.players.player_name AS Name, ((jawatson.games_details." + param.chosenStat + " / jawatson.games_details.seconds_played) * 2160) AS P36, " + monthOrYearString2 + " FROM jawatson.players, jawatson.games_details, jawatson.games WHERE jawatson.games_details.player_ID = jawatson.players.player_ID AND jawatson.games.game_ID = jawatson.games_details.game_ID AND (UPPER(jawatson.players.player_name) != " + finalName1 + ") AND jawatson.games_details.seconds_played != 0) GROUP BY " + monthOrYearString1 + ", Name ORDER BY \"Date\" ASC";
-  } else {
+  //if (param.p2name === "Other" || param.p2name === "other") {
+  //  data = "query=SELECT Name, AVG(P36), " + monthOrYearString1 + " as \"Date\" FROM (SELECT jawatson.players.player_name AS Name, ((jawatson.games_details." + param.chosenStat + " / jawatson.games_details.seconds_played) * 2160) AS P36, " + monthOrYearString2 + " FROM jawatson.players, jawatson.games_details, jawatson.games WHERE jawatson.games_details.player_ID = jawatson.players.player_ID AND jawatson.games.game_ID = jawatson.games_details.game_ID AND (UPPER(jawatson.players.player_name) = " + finalName1 + ") AND jawatson.games_details.seconds_played != 0 UNION SELECT jawatson.players.player_name AS Name, ((jawatson.games_details." + param.chosenStat + " / jawatson.games_details.seconds_played) * 2160) AS P36, " + monthOrYearString2 + " FROM jawatson.players, jawatson.games_details, jawatson.games WHERE jawatson.games_details.player_ID = jawatson.players.player_ID AND jawatson.games.game_ID = jawatson.games_details.game_ID AND (UPPER(jawatson.players.player_name) != " + finalName1 + ") AND jawatson.games_details.seconds_played != 0) GROUP BY " + monthOrYearString1 + ", Name ORDER BY \"Date\" ASC";
+  //} else {
     var adjustedName2 = param.p2name.replaceAll("'", "''");
     var finalName2 = "UPPER('"+adjustedName2+"')";
     data = "query=SELECT Name, AVG(P36), " + monthOrYearString1 + " as \"Date\" FROM (SELECT jawatson.players.player_name AS Name, ((jawatson.games_details." + param.chosenStat + " / jawatson.games_details.seconds_played) * 2160) AS P36, " + monthOrYearString2 + " FROM jawatson.players, jawatson.games_details, jawatson.games WHERE jawatson.games_details.player_ID = jawatson.players.player_ID AND jawatson.games.game_ID = jawatson.games_details.game_ID AND (UPPER(jawatson.players.player_name) = " + finalName1 + ") AND jawatson.games_details.seconds_played != 0 UNION SELECT jawatson.players.player_name AS Name, ((jawatson.games_details." + param.chosenStat + " / jawatson.games_details.seconds_played) * 2160) AS P36, " + monthOrYearString2 + " FROM jawatson.players, jawatson.games_details, jawatson.games WHERE jawatson.games_details.player_ID = jawatson.players.player_ID AND jawatson.games.game_ID = jawatson.games_details.game_ID AND (UPPER(jawatson.players.player_name) = " + finalName2 + ") AND jawatson.games_details.seconds_played != 0) GROUP BY " + monthOrYearString1 + ", Name ORDER BY \"Date\" ASC";
-  }
+  //}
 
   //var data = "query=SELECT Name, P36, to_char(\"TRUNC(GAME_DATE,'MONTH')\",'YYYY-MM') as \"Date\" FROM (SELECT players.player_name AS Name, ((games_details." + param.chosenStat + " / games_details.seconds_played) * 2160) AS P36, Trunc(Game_Date, 'Month') FROM players, games_details, games WHERE games_details.player_ID = players.player_ID AND games.game_ID = games_details.game_ID AND (UPPER(players.player_name) = " + finalName1 + ") AND games_details.seconds_played != 0 UNION SELECT players.player_name AS Name, ((games_details." + param.chosenStat + " / games_details.seconds_played) * 2160) AS P36, Trunc(Game_Date, 'Month') FROM players, games_details, games WHERE games_details.player_ID = players.player_ID AND games.game_ID = games_details.game_ID AND (UPPER(players.player_name) = " + finalName2 + ") AND games_details.seconds_played != 0) ORDER BY \"Date\" ASC";
 
@@ -86,11 +97,14 @@ function test(param) {
 class Query2 extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { p1name: "", p2name: "", chosenStat: "", monthOrYear: 0};
+    this.state = { p1name: "", p2name: "", chosenStat: "", monthOrYear: "year", p1ChartName: "", p2ChartName: "", statChartName: "",};
     this.updateChart = this.updateChart.bind(this);
     this.chart = "";
   }
   mySubmitHandler = (event) => {
+    this.setState({p1ChartName: this.state.p1name});
+    this.setState({p2ChartName: this.state.p2name});
+    this.setState({statChartName: this.state.chosenStat});
     event.preventDefault();
     test(this.state);
     var x = document.getElementById("chart");
@@ -120,10 +134,10 @@ class Query2 extends React.Component {
     const options = {
       animationEnabled: true,
       title: {
-        text: "Stats Per 36-Minute for Players",
+        text: "Predicted "+titleCase(this.state.statChartName.replaceAll("_", " "))+" Per 36 Minutes for Players",
       },
       axisY: {
-          title: "" + this.state.chosenStat.replaceAll("_", " "),
+          title: "" + titleCase(this.state.statChartName.replaceAll("_", " ")),
       },
       axisX: {
         title: "Date",
@@ -135,14 +149,14 @@ class Query2 extends React.Component {
       data: [
         {
           type: "spline",
-          name: this.state.p1name,
+          name: ""+titleCase(this.state.p1ChartName)+" Predicted "+titleCase(this.state.statChartName.replaceAll("_", " "))+" per 36 minutes",
           showInLegend: true,
           markerType: "circle",
           dataPoints: p1,
         },
         {
           type: "spline",
-          name: this.state.p2name,
+          name: ""+titleCase(this.state.p2ChartName)+" Predicted "+titleCase(this.state.statChartName.replaceAll("_", " "))+" per 36 minutes",
           showInLegend: true,
           markerType: "square",
           dataPoints: p2,
@@ -158,7 +172,7 @@ class Query2 extends React.Component {
             <input type="text" onChange={this.myChangeHandler1} required />
           </label>
           <label>
-            Player Name 2 (Type 'Other' to see all other players):
+            Player Name 2:
             <input type="text" onChange={this.myChangeHandler2} required />
           </label>
           <br />
@@ -183,14 +197,22 @@ class Query2 extends React.Component {
                   <option value={"points"}>Points</option>
               </select>
           </label>
-          <label>
-              Group By:
-              <select multiple={false} value={this.props.monthOrYear} onChange={this.myChangeHandler4} required>
-                  <option value={""}>-- Choose Date Configuration --</option>
-                  <option value={"1"}>Month</option>
-                  <option value={"0"}>Year</option>
-              </select>
-          </label>
+          <div className="radio">
+            <input
+              type="radio"
+              value="year"
+              checked={this.state.monthOrYear === "year"}
+              onChange={this.myChangeHandler4}
+            />
+            yearly
+            <input
+              type="radio"
+              value="month"
+              checked={this.state.monthOrYear === "month"}
+              onChange={this.myChangeHandler4}
+            />
+            monthly
+          </div>
           <br />
           <br />
           <input type="submit" />
