@@ -6,6 +6,7 @@ import {CanvasJSChart} from 'canvasjs-react-charts'
 // option to compare against avg(rest of league) --- X
 // group by month --- X
 // edit start/end dates --- X
+// dhrubo28-patch-1
 
  
 var team1=[];
@@ -23,15 +24,16 @@ function test(firstTeam, secondTeam, groupBy, startDate, endDate, stat, season){
     
     if(groupBy==='year'){  
         var temp = 2;
-        if(season ==='playoff'){
+        if(season ==='playoffs'){
             temp = 4
-        }          
+        }   
+           
         var data = "query= select t.team_name, avg(g."+stat+") as stat,  Extract(year from g.game_date) as GAMES_YEAR from jawatson.teams t, JAWATSON.games g, jawatson.games_details gd  where gd.team_id = t.team_id and g.game_id = gd.game_id and g.playoff_indicator =" +temp+" and (t.team_name = '"+firstTeam +"' or t.team_name = '"+secondTeam+"') and (g.game_date >= to_date('"+startDate+"', 'YYYY-MM-DD') and   g.game_date <= to_date('"+endDate+"', 'YYYY-MM-DD')) group by Extract(year from g.game_date), t.team_name order by Extract(year from g.game_date) asc"
         xhr.send(data);
      }
     else {
         var temp1 = 2;
-        if(season ==='playoff'){
+        if(season ==='playoffs'){
             temp1 = 4
         }
         var data1 = "query= select t.team_name, avg(g."+stat+") as stat,  Extract(year from g.game_date) as GAMES_YEAR, Extract(month from g.game_date) as GAMES_MONTH from jawatson.teams t, JAWATSON.games g, jawatson.games_details gd  where gd.team_id = t.team_id and g.game_id = gd.game_id and g.playoff_indicator = " +temp1+" and (t.team_name = '"+firstTeam +"' or t.team_name = '"+secondTeam+"') and (g.game_date >= to_date('"+startDate+"', 'YYYY-MM-DD') and   g.game_date <= to_date('"+endDate+"', 'YYYY-MM-DD')) group by Extract(year from g.game_date), Extract(month from g.game_date), t.team_name order by Extract(year from g.game_date), Extract(month from g.game_date) asc"
@@ -47,35 +49,27 @@ function test(firstTeam, secondTeam, groupBy, startDate, endDate, stat, season){
             var obj = JSON.parse(xhr.responseText);
             //div.innerHTML = xhr.responseText;
              //document.body.appendChild(div);
-             if (groupBy === "month") {
-                for (var i = 0; i < obj.message.rows.length; i++) {
-                  if (obj.message.rows[i][0] === firstTeam) {
-                    team1.push({
-                      y: obj.message.rows[i][1],
-                      x: new Date(obj.message.rows[i][2], obj.message.rows[i][3]),
-                    });
-                  } else {
-                    team2.push({
-                      y: obj.message.rows[i][1],
-                      x: new Date(obj.message.rows[i][2], obj.message.rows[i][3]),
-                    });
-                  }
-                }
-              } else {
-                for (i = 0; i < obj.message.rows.length; i++) {
-                  if (obj.message.rows[i][0] === firstTeam) {
-                    team1.push({
-                      y: obj.message.rows[i][1],
-                      x: new Date(obj.message.rows[i][2], 0),
-                    });
-                  } else {
-                    team2.push({
-                      y: obj.message.rows[i][1],
-                      x: new Date(obj.message.rows[i][2], 0),
-                    });
-                  }
-                }
-              }
+            var monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September','October', 'November', 'December'];
+            if(groupBy === 'month'){
+                for(var i=0; i<obj.message.rows.length;i++){
+                    if(obj.message.rows[i][0]===firstTeam){
+                        team1.push({y: obj.message.rows[i][1], label: monthNames[obj.message.rows[i][3]-1] + ' '+ obj.message.rows[i][2]});
+                    }
+                    else{
+                        team2.push({y: obj.message.rows[i][1], label: monthNames[obj.message.rows[i][3]-1] + ' '+ obj.message.rows[i][2]});
+                    }
+                }   
+            }
+            else{
+                for(i=0; i<obj.message.rows.length;i++){
+                    if(obj.message.rows[i][0]===firstTeam){
+                        team1.push({y: obj.message.rows[i][1], label: obj.message.rows[i][2]});
+                    }
+                    else{
+                        team2.push({y: obj.message.rows[i][1], label: obj.message.rows[i][2]});
+                    }
+                }    
+            }
 
             
            
@@ -99,20 +93,14 @@ function test(firstTeam, secondTeam, groupBy, startDate, endDate, stat, season){
 class Query3 extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { firstTeam: '', secondTeam: '', groupBy: 'year', stat: '', startDate:'', endDate:'', team1Name:'', team2Name:'', season:'regular', tableName:''};
+        this.state = { firstTeam: '', secondTeam: '', groupBy: '', stat: '', startDate:'', endDate:'', team1Name:'', team2Name:'', season:'', tableName:''};
         this.updateChart = this.updateChart.bind(this);
         this.chart = '';
     }
     mySubmitHandler = (event) => {
         this.setState({team1Name: this.state.firstTeam});
         this.setState({team2Name: this.state.secondTeam});
-        if(this.state.season === "regular"){
-            this.setState({tableName: "Regular Season Stats"});
-        }
-        else{
-            this.setState({tableName: "Playoff Stats"});
-        }
-        
+        this.setState({tableName: this.state.season});
         event.preventDefault();
         test(this.state.firstTeam, this.state.secondTeam, this.state.groupBy, this.state.startDate, this.state.endDate, this.state.stat, this.state.season);
         var x = document.getElementById('chart');
@@ -153,10 +141,10 @@ class Query3 extends React.Component {
         const options = {
             animationEnabled: true,	
             title:{
-                text: this.state.tableName
+                text: "Average of Stats per Game"
             },
             axisY : {
-                title: "Average"
+                title: "Average of Stats"
             },
             toolTip: {
                 shared: true
@@ -186,11 +174,11 @@ class Query3 extends React.Component {
             <h1>Compare Regular Season and Playoff Games Stats</h1>
             <form onSubmit={this.mySubmitHandler}>
                 <select onChange={this.ChangeFirst} required>
-                    <option value=""  >First Team</option>
+                    <option value=""  >Team 1:</option>
                     {teams.map(c => <option key={c}>{c}</option>)}
                 </select>
                 <select onChange={this.ChangeSecond} required>
-                    <option value=""  >Second Team</option>
+                    <option value=""  >Team 2:</option>
                     {teams.map(c => <option key={c}>{c}</option>)}
                 </select>
                 Choose a stat:
