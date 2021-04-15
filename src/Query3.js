@@ -13,7 +13,7 @@ var team1=[];
 var team2=[];
 
 
-function test(firstTeam, secondTeam, groupBy, startDate, endDate, stat, season){
+function test(firstTeam, secondTeam, groupBy, startDate, endDate, stat, season, homeOrAway){
     team1.length=0;
     team2.length=0;
   
@@ -22,22 +22,57 @@ function test(firstTeam, secondTeam, groupBy, startDate, endDate, stat, season){
     xhr.open('POST', 'http://localhost:8080');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     
+    let homeOrAwayString;
+    let monthOrYearString1;
+    let monthOrYearString2;
+
+    if(stat ==='team_wins_bool') {
+        homeOrAwayString = "home_";
+    } else {
+        homeOrAwayString = homeOrAway;
+    }
+
     if(groupBy==='year'){  
-        var temp = 2;
-        if(season ==='playoffs'){
-            temp = 4
-        }   
-           
-        var data = "query= select t.team_name, avg(g."+stat+") as stat,  Extract(year from g.game_date) as GAMES_YEAR from jawatson.teams t, JAWATSON.games g, jawatson.games_details gd  where gd.team_id = t.team_id and g.game_id = gd.game_id and g.playoff_indicator =" +temp+" and (t.team_name = '"+firstTeam +"' or t.team_name = '"+secondTeam+"') and (g.game_date >= to_date('"+startDate+"', 'YYYY-MM-DD') and   g.game_date <= to_date('"+endDate+"', 'YYYY-MM-DD')) group by Extract(year from g.game_date), t.team_name order by Extract(year from g.game_date) asc"
-        xhr.send(data);
+        let temp;
+        if(season ==='playoff'){
+            temp = 4;
+            //monthOrYearString1 = "to_char(\"TRUNC(g.GAME_DATE,'YEAR')\",'YYYY-MM')";
+            //monthOrYearString2 = "Trunc(g.Game_Date, 'Year')";
+        } else {
+            temp = 2;
+            //monthOrYearString1 = "Extract(year from g.game_date) as GAMES_YEAR";
+            //monthOrYearString2 = "Extract(year from g.game_date)";
+        }
+        monthOrYearString1 = "Extract(year from g.game_date) as GAMES_YEAR";
+        monthOrYearString2 = "Extract(year from g.game_date)";
+        if(homeOrAwayString === "home_") {
+            var datah = "query= select t.team_name, avg(g."+homeOrAwayString+stat+") as stat,  "+monthOrYearString1+" from jawatson.teams t, JAWATSON.games g, jawatson.games_details gd  where gd.team_id = t.team_id and gd.team_id = g.home_team_id and g.game_id = gd.game_id and g.playoff_indicator = "+temp+" and (t.team_name = '"+firstTeam +"' or t.team_name = '"+secondTeam+"') and (g.game_date >= to_date('"+startDate+"', 'YYYY-MM-DD') and   g.game_date <= to_date('"+endDate+"', 'YYYY-MM-DD')) group by "+monthOrYearString2+", t.team_name order by "+monthOrYearString2+" asc"
+            xhr.send(datah);
+        } else {
+            var dataa = "query= select t.team_name, avg(g."+homeOrAwayString+stat+") as stat,  "+monthOrYearString1+" from jawatson.teams t, JAWATSON.games g, jawatson.games_details gd  where gd.team_id = t.team_id and gd.team_id = g.visitor_team_id and g.game_id = gd.game_id and g.playoff_indicator =" +temp+" and (t.team_name = '"+firstTeam +"' or t.team_name = '"+secondTeam+"') and (g.game_date >= to_date('"+startDate+"', 'YYYY-MM-DD') and   g.game_date <= to_date('"+endDate+"', 'YYYY-MM-DD')) group by "+monthOrYearString2+", t.team_name order by "+monthOrYearString2+" asc"
+            xhr.send(dataa);
+        }
      }
     else {
-        var temp1 = 2;
-        if(season ==='playoffs'){
-            temp1 = 4
+        let temp1;
+        if(season ==='playoff'){
+            temp1 = 4;
+            //monthOrYearString1 = "to_char(\"TRUNC(GAME_DATE,'MONTH')\",'YYYY-MM')";
+            //monthOrYearString2 = "Trunc(Game_Date, 'Month')";
+        } else {
+            temp1 = 2;
+           // monthOrYearString1 = "Extract(year from g.game_date) as GAMES_YEAR, Extract(month from g.game_date) as GAMES_MONTH";
+            //monthOrYearString2 = "Extract(year from g.game_date), Extract(month from g.game_date)";
         }
-        var data1 = "query= select t.team_name, avg(g."+stat+") as stat,  Extract(year from g.game_date) as GAMES_YEAR, Extract(month from g.game_date) as GAMES_MONTH from jawatson.teams t, JAWATSON.games g, jawatson.games_details gd  where gd.team_id = t.team_id and g.game_id = gd.game_id and g.playoff_indicator = " +temp1+" and (t.team_name = '"+firstTeam +"' or t.team_name = '"+secondTeam+"') and (g.game_date >= to_date('"+startDate+"', 'YYYY-MM-DD') and   g.game_date <= to_date('"+endDate+"', 'YYYY-MM-DD')) group by Extract(year from g.game_date), Extract(month from g.game_date), t.team_name order by Extract(year from g.game_date), Extract(month from g.game_date) asc"
-        xhr.send(data1)
+        monthOrYearString1 = "Extract(year from g.game_date) as GAMES_YEAR, Extract(month from g.game_date) as GAMES_MONTH";
+        monthOrYearString2 = "Extract(year from g.game_date), Extract(month from g.game_date)";
+        if(homeOrAwayString === "home_") {
+            var data1h = "query= select t.team_name, avg(g."+homeOrAwayString+stat+") as stat,  "+monthOrYearString1+" from jawatson.teams t, JAWATSON.games g, jawatson.games_details gd  where gd.team_id = t.team_id and gd.team_id = g.home_team_id and g.game_id = gd.game_id and g.playoff_indicator = " +temp1+" and (t.team_name = '"+firstTeam +"' or t.team_name = '"+secondTeam+"') and (g.game_date >= to_date('"+startDate+"', 'YYYY-MM-DD') and   g.game_date <= to_date('"+endDate+"', 'YYYY-MM-DD')) group by "+monthOrYearString2+", t.team_name order by "+monthOrYearString2+" asc"
+            xhr.send(data1h);
+        } else {
+            var data1a = "query= select t.team_name, avg(g."+homeOrAwayString+stat+") as stat,  "+monthOrYearString1+" from jawatson.teams t, JAWATSON.games g, jawatson.games_details gd  where gd.team_id = t.team_id and gd.team_id = g.visitor_team_id and g.game_id = gd.game_id and g.playoff_indicator = " +temp1+" and (t.team_name = '"+firstTeam +"' or t.team_name = '"+secondTeam+"') and (g.game_date >= to_date('"+startDate+"', 'YYYY-MM-DD') and   g.game_date <= to_date('"+endDate+"', 'YYYY-MM-DD')) group by "+monthOrYearString2+", t.team_name order by "+monthOrYearString2+" asc"
+            xhr.send(data1a);
+        }
     }
     
     // called after the response is received
@@ -93,7 +128,7 @@ function test(firstTeam, secondTeam, groupBy, startDate, endDate, stat, season){
 class Query3 extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { firstTeam: '', secondTeam: '', groupBy: '', stat: '', startDate:'', endDate:'', team1Name:'', team2Name:'', season:'', tableName:''};
+        this.state = { firstTeam: '', secondTeam: '', groupBy: '', stat: '', startDate:'', endDate:'', team1Name:'', team2Name:'', season:'', tableName:'', homeOrAway:'',};
         this.updateChart = this.updateChart.bind(this);
         this.chart = '';
     }
@@ -102,7 +137,7 @@ class Query3 extends React.Component {
         this.setState({team2Name: this.state.secondTeam});
         this.setState({tableName: this.state.season});
         event.preventDefault();
-        test(this.state.firstTeam, this.state.secondTeam, this.state.groupBy, this.state.startDate, this.state.endDate, this.state.stat, this.state.season);
+        test(this.state.firstTeam, this.state.secondTeam, this.state.groupBy, this.state.startDate, this.state.endDate, this.state.stat, this.state.season, this.state.homeOrAway,);
         var x = document.getElementById('chart');
         x.hidden = false;
     }
@@ -128,6 +163,9 @@ class Query3 extends React.Component {
         this.setState({stat: event.target.value});
         
     }
+    ChangeHomeAway = (event) => {
+        this.setState({homeOrAway: event.target.value});
+    };
     componentDidMount(){
 	    setInterval(this.updateChart);
 	}
@@ -173,32 +211,33 @@ class Query3 extends React.Component {
             <>
             <h1>Compare Regular Season and Playoff Games Stats</h1>
             <form onSubmit={this.mySubmitHandler}>
+                Team 1: 
                 <select onChange={this.ChangeFirst} required>
                     <option value=""  >Team 1:</option>
                     {teams.map(c => <option key={c}>{c}</option>)}
                 </select>
+                Team 2:
                 <select onChange={this.ChangeSecond} required>
                     <option value=""  >Team 2:</option>
                     {teams.map(c => <option key={c}>{c}</option>)}
                 </select>
+                <br />
                 Choose a stat:
               <select multiple={false} value={this.props.chosenStat} onChange={this.ChangeStat} required>
                   <option value={""}>-- Choose Statistic --</option>
-                  <option value={"home_points"}>Home Points</option>
-                  <option value={"home_fieldgoal_percentage"}>Home Fieldgoal Percentage</option>
-                  <option value={"home_freethrow_percentage"}>Home Freethrow Percentage</option>
-                  <option value={"home_3point_percentage"}>Home Threepoint Percentage</option>
-                  <option value={"home_assists"}>Home Assists</option>
-                  <option value={"home_rebounds"}>Home Rebounds</option>
-                  <option value={"away_points"}>Away Points</option>
-                  <option value={"away_fieldgoal_percentage"}>Away Fieldgoal Percentage</option>
-                  <option value={"away_freethrow_percentage"}>Away Freethrow Percentage</option>
-                  <option value={"away_3point_percentage"}>Away Threepoint Percentage</option>
-                  <option value={"away_assists"}>Away Assists</option>
-                  <option value={"away_rebounds"}>Away Rebounds</option>
-                  <option value={"home_team_wins_bool"}>Home Team Wins Bool</option>
+                  <option value={"points"}>Points</option>
+                  <option value={"fieldgoal_percentage"}>Fieldgoal Percentage</option>
+                  <option value={"freethrow_percentage"}>Freethrow Percentage</option>
+                  <option value={"3point_percentage"}>Threepoint Percentage</option>
+                  <option value={"assists"}>Assists</option>
+                  <option value={"rebounds"}>Rebounds</option>
+                  <option value={"team_wins_bool"}>Home Team Wins Bool</option>
                   
               </select>
+              <div className="radio" >             
+                    <input type="radio" value="home_" checked={this.state.homeOrAway === 'home_'} onChange={this.ChangeHomeAway}/>home               
+                    <input type="radio" value="away_" checked={this.state.homeOrAway === 'away_'} onChange={this.ChangeHomeAway}/>away           
+                </div>
                 <br/>
                 <br/>
                 start date: <input type = "date" onChange={this.ChangeStartDate} required/> <br/>
