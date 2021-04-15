@@ -449,7 +449,7 @@ class Query4 extends React.Component {
           </select>
           <br />
           Team 2:
-          <select value={this.props.secondTeam} onChange={this.ChangeSecond} required>
+          <select value={this.props.secondTeam} onChange={this.ChangeSecond}>
             <option value="">Second Team</option>
             {teams.map((c) => (
               <option key={c}>{c}</option>
