@@ -141,7 +141,7 @@ class Query2 extends React.Component {
       },
       axisX: {
         title: "Date",
-        valueFormatString: "MM-YYYY",
+        valueFormatString: "YYYY",
       },
       toolTip: {
         shared: true,
